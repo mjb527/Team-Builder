@@ -1,0 +1,12 @@
+
+#top-bar {
+  background-color: #ff3333;
+  height: 200px;
+  width: 100%;
+}
+
+#top-bar h2 {
+  text-align: center;
+  line-height: 200px;
+
+}
