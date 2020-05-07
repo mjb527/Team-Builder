@@ -4,11 +4,11 @@ const Intern = require("./lib/Intern");
 const inquirer = require("inquirer");
 const path = require("path");
 const fs = require("fs");
+const render = require('./lib/htmlRenderer.js');
 
-const OUTPUT_DIR = path.resolve(__dirname, "output")
-const outputPath = path.join(OUTPUT_DIR, "team.html");
 
-const render = require("./lib/htmlRenderer");
+const OUTPUT_DIR = path.resolve(__dirname, "output");
+
 
 // validate input
 const validateName = (input) => {
@@ -51,47 +51,68 @@ const validateGit = (input) => {
 
 }
 
-// const yn = (input) => {
-//   return input.toLowerCase() === 'y' || input.toLowerCase() === 'n';
-// }
-
 const employees = [];
+let teamName = '';
 
-inquirer.prompt(
-  [{
-    message: 'What is your name?',
-    type: 'input',
-    validate: validateName,
-    name: 'name'
-  },
-  {
-    message: 'What is your office number?',
-    type: 'input',
-    name: 'officeNumber'
-  },
-  {
-    message: 'What is your email address?',
-    type: 'input',
-    name: 'email',
-    validate: validateEmail,
-  },
-  {
-    message: 'Add a new team member:',
-    type: 'list',
-    choices: ['Intern', 'Engineer', 'That\'s my whole team'],
-    name: 'role'
-  }])
-  .then(answers => {
-    const {name, officeNumber, role, id, email} = answers;
+init();
 
-    employees.push(new Manager(name, id, email, officeNumber));
 
-    if(role !== "That's my whole team") ask(role);
-    else console.log('done');// renderHtml
 
-});
+
+function init() {
+  inquirer.prompt(
+    [
+    {
+      message: 'What is your team name?',
+      type: 'input',
+      name: 'teamName'
+    },
+    {
+      message: 'What is your ID?',
+      type: 'input',
+      validate: validateId,
+      name: 'id'
+    },
+    {
+      message: 'What is your name?',
+      type: 'input',
+      validate: validateName,
+      name: 'name'
+    },
+    {
+      message: 'What is your office number?',
+      type: 'input',
+      name: 'officeNumber'
+    },
+    {
+      message: 'What is your email address?',
+      type: 'input',
+      name: 'email',
+      validate: validateEmail,
+    },
+    {
+      message: 'Add a new team member:',
+      type: 'list',
+      choices: ['Intern', 'Engineer', 'That\'s my whole team'],
+      name: 'role'
+    }])
+    .then(answers => {
+      teamName = answers.teamName
+      fs.writeFileSync(`${OUTPUT_DIR}/${teamName}.html`, '');
+
+
+      const {name, officeNumber, role, id, email} = answers;
+
+      employees.push(new Manager(name, id, email, officeNumber));
+
+      if(role !== "That's my whole team") ask(role);
+      else renderHTML(); // renderHtml
+
+    });
+}
 
 function ask(role) {
+
   const questions = [
     {
       message: 'What is the employee\'s name?',
@@ -111,6 +132,7 @@ function ask(role) {
       validate: validateEmail,
       name: 'email'
     }];
+
   if(role === 'Intern') questions.push(
     {
       message: 'What is the employee\'s school?',
@@ -119,7 +141,7 @@ function ask(role) {
       validate: validateSchool
     }
   );
-  else if (role === 'Engineer') {
+  else {
     questions.push({
       message: 'What is the employee\'s Github username?',
       type: 'input',
@@ -134,33 +156,31 @@ function ask(role) {
     name: 'newRole'
   });
 
-  console.log(questions);
+
 
   // create new employee
-  return new Promise((resolve, reject) => { inquirer.prompt(questions).then(
+  return new Promise((resolve, reject) => {
+
+    inquirer.prompt(questions).then(
     function(answers) {
-      console.log(employees);
+
       const {name, id, email, extra, newRole} = answers;
       if(role === 'Engineer')
         employees.push(new Engineer(name, id, email, extra));
       else employees.push(new Intern(name, id, email, extra));
 
-      if(newRole !== "That's my whole team") resolve(role);
-      else console.log('that\'s it');// renderHtml
+      if(newRole !== "That's my whole team") ask(newRole);
+      else renderHTML(); // renderHtml
 
     });
   });
 } // end function
 
-
-
-
-
-
-
-
-// render the html
-
+function renderHTML() {
+  const html = render(employees, teamName);
+  console.log(teamName);
+  fs.writeFileSync(`${OUTPUT_DIR}/${teamName}.html`, html);
+}
 
 
 
