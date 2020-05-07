@@ -11,9 +11,9 @@ After retrieving the data for each team member, the app will organize it into HT
 See the below .gif and screenshot for an example of the app in use and an example output.
 
 
-![App in Use](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "App In Use")
+![App in Use](https://github.com/mjb527/Team-Builder/blob/master/team-builder.gif "App In Use")
 
-![Example Output](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Example Output")
+![Example Output](https://github.com/mjb527/Team-Builder/blob/master/example-team-page.png "Example Output")
 
 
 ## Installation
